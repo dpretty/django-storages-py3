@@ -1,4 +1,5 @@
 import os
+import sys
 import mimetypes
 
 try:
@@ -88,8 +89,8 @@ def safe_join(base, *paths):
     base_path_len = len(base_path)
     if (not final_path.startswith(base_path) or
             final_path[base_path_len:base_path_len + 1] not in ('', '/')):
-        raise ValueError('the joined path is located outside of the base path'
-                         ' component')
+        raise ValueError('the joined path {0} is located outside of the base path'
+                         ' component {1}'.format(final_path, base_path))
 
     return final_path.lstrip('/')
 
@@ -215,8 +216,7 @@ class S3BotoStorage(Storage):
         try:
             return safe_join(self.location, name)
         except ValueError:
-            raise SuspiciousOperation("Attempted access to '%s' denied." %
-                                      name)
+            raise SuspiciousOperation("Attempted access to '{0}' denied. {1}".format(name, sys.exc_info()[1]))
 
     def _encode_name(self, name):
         return smart_str(name, encoding=self.file_name_charset)
